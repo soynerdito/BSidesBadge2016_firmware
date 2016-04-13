@@ -34,7 +34,10 @@
 #include "stm32f0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
+#include "spi_helper.h"
 #include "eeprom.h"
+#include "ledmatrix.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -59,13 +62,7 @@ static void MX_SPI1_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-#define SPIx_TIMEOUT_MAX                      ((uint32_t)0x1000)
-uint32_t SpixTimeout = SPIx_TIMEOUT_MAX; /*<! Value of Timeout when SPI communication fails */
 
-uint8_t SPIx_WriteRead(uint8_t Byte);
-void SPIx_Write(uint16_t Value);
-uint32_t SPIx_Read(uint8_t ReadSize);
-void SPIx_Error( );
 
 
 	
@@ -75,22 +72,34 @@ void SPIx_Error( );
 
 
 
-void doLatch()
+/*void doLatch()
 {
 	//Do Latch	
 	HAL_GPIO_WritePin(GPIOA, MATRIX_ENABLE_Pin, GPIO_PIN_RESET );
-	//HAL_Delay(20);
 	HAL_GPIO_WritePin(GPIOA, MATRIX_ENABLE_Pin, GPIO_PIN_SET );
+}*/
+
+/*void enableEEPROM()
+{
+	HAL_GPIO_WritePin(GPIOA, EEPROM_CS_Pin, GPIO_PIN_SET );
 }
+
+void disableEEPROM()
+{	
+	HAL_GPIO_WritePin(GPIOA, EEPROM_CS_Pin, GPIO_PIN_RESET );
+}*/
+
 #define LEFT 0
 #define BOTTOM 1
 #define RIGHT 2
 #define TOP 3
+uint16_t value=0;
+uint16_t data = 0x38;
+uint16_t fieldValue;
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	
 	
   /* USER CODE END 1 */
 
@@ -104,57 +113,71 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
+  //MX_DMA_Init();
   MX_SPI1_Init();
 
-  /* USER CODE BEGIN 2 */
+  /* USER CODE BEGIN 2 */	
+	//Initialize SPI control
+	spiControl.initialize( &hspi1, MX_SPI1_Init );	
+	//Initialize Led Matrix control
+	ledMatrix.initialize( &spiControl, GPIOA, MATRIX_ENABLE_Pin );
+	//Clear matrix in case it has some led ON
+	ledMatrix.clear();
+	//Inititalize EEPROM control
+	eeprom.initialize( &spiControl, GPIOA, EEPROM_CS_Pin );
+	
+	HAL_Delay(2);	
+	
+	uint16_t address = 0x01;
+	
+	value = eeprom.readData(address);	
+	
+	eeprom.enableWrite();
+	
+	data = 0xFF25;
+	eeprom.write( address, data );	
+	//disableProgramming();
+	//disableEEPROM();
+	//Try to read that
+	HAL_Delay(1);	
+	//enableEEPROM();
+	value = 3;
 
-  /* USER CODE END 2 */
+	value = eeprom.readData(address);
+	//Try to read it again	
+	address = 0x02;
+	value = eeprom.readData(address);	
+	address = 0x01;
+	value = eeprom.readData(address);	
+	//Enable write function
+	eeprom.enableWrite();
+	//Write new data to the eeprom
+	data = 0xFF62;
+	eeprom.write(address, data );
+	
+	value = eeprom.readData(address);	
+
+	eeprom.enableWrite();	
+	data = 0x954F;
+	eeprom.write(address, data );
+	
+	value = eeprom.readData(0x00);	
+	eeprom.disableChip();
+	
+	/* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint16_t matrix_data[] = { 0xA0, 0x0A };
 	int pos = 0;
-	SPIx_Write( 0x0 );
-	SPIx_Write( 0x0 );	
-	doLatch();
 	
+	ledMatrix.clear();	
 	HAL_Delay(100);
-	uint16_t data = matrix_data[0];
 	uint8_t xpos = 0;
 	uint8_t ypos = 0;
-	int down = 1;
 	uint16_t column=0;
 	uint16_t row=0;
 	
-	//Fill from top left
-	pos = 0;
-	/*while( pos < 8 ){
-		column = column | (1 << pos);
-		row = row | (1 << pos);
-		pos++;
-		SPIx_Write( ~row );
-		SPIx_Write( column );	
-		doLatch();
-		HAL_Delay(75);
-	}
-	HAL_Delay(100);
-	//blink several times
-	int delay=300;
-	while( delay > 0 ){
-		SPIx_Write( ~row );
-		SPIx_Write( column );	
-		doLatch();
-		HAL_Delay(delay);
-		SPIx_Write( 0 );
-		SPIx_Write( 0 );	
-		doLatch();
-		HAL_Delay(delay);
-		delay -=10;
-	}*/
-	
-	pos = 0;
-	
+	pos = 0;	
 	column=0;
 	row=0;
 	
@@ -162,7 +185,7 @@ int main(void)
 	int activeSide=0;
 	pos = 0;
 	int ylimit=7;
-	int delay=300;
+	int delay=250;
   while (1)
   {
   /* USER CODE END WHILE */
@@ -172,36 +195,46 @@ int main(void)
 		if( activeSide==0 && ylimit==7 && xpos==0
 				&& ypos==0 ){
 			//Fill from top left
-			delay=300;
+			//delay=300;
 			pos = 0;
 			column=0;
 			row=0;
+			//Animate matrix filling
 			while( pos < 8 ){
 				column = column | (1 << pos);
 				row = row | (1 << pos);
-				pos++;
-				SPIx_Write( ~row );
-				SPIx_Write( column );	
-				doLatch();
+				pos++;				
+				ledMatrix.write( ~row, column );
 				HAL_Delay(75);
 			}
 			HAL_Delay(100);
 			//blink several times
-			int delay=300;
-			while( delay > 0 ){
-				SPIx_Write( ~row );
-				SPIx_Write( column );	
-				doLatch();
+			delay=250;
+			//Blink led matrix increasing speed
+			while( delay > 0 ){				
+				//Turn ON matrix
+				ledMatrix.write( 0x00, 0xFF );
+				HAL_Delay(delay);				
+				//Turn OFF matrix
+				ledMatrix.clear();
 				HAL_Delay(delay);
-				SPIx_Write( 0 );
-				SPIx_Write( 0 );	
-				doLatch();
-				HAL_Delay(delay);
-				delay -=10;
+				delay -=10;				
 			}
-			
-			pos = 0;
-			
+			//No clear little by little the matrix
+			pos = 0;			
+			column=0;
+			row=0;
+			//Set matrix to same state it was at the end of last animation
+			ledMatrix.write( ~row, column );			
+			//Animate led matrix emptying
+			while( pos < 8 ){
+				column = column | (1 << pos);
+				row = row | (1 << pos);
+				pos++;				
+				ledMatrix.write( row, ~column );
+				HAL_Delay(75);
+			}			
+			pos = 0;			
 			column=0;
 			row=0;
 		}
@@ -231,10 +264,8 @@ int main(void)
 		}
 		
 		
-		//Write to matrix
-		SPIx_Write( row );
-		SPIx_Write( column );
-		doLatch();
+		//Write to matrix		
+		ledMatrix.write( row, column );
 		HAL_Delay(100);
 		
 		ypos++;		
@@ -259,6 +290,7 @@ int main(void)
   }
   /* USER CODE END 3 */
 
+	return 0;
 }
 
 /** System Clock Configuration
@@ -360,76 +392,6 @@ void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void SPIx_Error( )
-{
-  /* De-initialize the SPI comunication BUS */
-  HAL_SPI_DeInit(&hspi1);
-  
-  /* Re- Initiaize the SPI comunication BUS */
-  MX_SPI1_Init( );
-}
-
-/**
-  * @brief SPI Read 4 bytes from device
-  * @param  ReadSize Number of bytes to read (max 4 bytes)
-  * @retval Value read on the SPI
-  */
-uint32_t SPIx_Read(uint8_t ReadSize)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-  uint32_t readvalue;
-  
-  status = HAL_SPI_Receive(&hspi1, (uint8_t*) &readvalue, ReadSize, SpixTimeout);
-  
-  /* Check the communication status */
-  if(status != HAL_OK)
-  {
-    /* Re-Initiaize the BUS */
-    SPIx_Error();
-  }
-
-  return readvalue;
-}
-
-/**
-  * @brief SPI Write a byte to device
-  * @param Value: value to be written
-  * @retval None
-  */
-void SPIx_Write(uint16_t Value)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-
-  status = HAL_SPI_Transmit(&hspi1, (uint8_t*) &Value, 1, SpixTimeout);
-
-  /* Check the communication status */
-  if(status != HAL_OK)
-  {
-    /* Re-Initiaize the BUS */
-    SPIx_Error();
-  }
-}
-
-/**
-  * @brief  Sends a Byte through the SPI interface and return the Byte received 
-  *         from the SPI bus.
-  * @param  Byte : Byte send.
-  * @retval The received byte value
-  */
-uint8_t SPIx_WriteRead(uint8_t Byte)
-{
-
-  uint8_t receivedbyte = 0;
-  
-  /* Send a Byte through the SPI peripheral */
-  /* Read byte from the SPI bus */
-  if(HAL_SPI_TransmitReceive(&hspi1, (uint8_t*) &Byte, (uint8_t*) &receivedbyte, 1, SpixTimeout) != HAL_OK)
-  {
-    SPIx_Error();
-  }
-  
-  return receivedbyte;
-}
 
 /**
   * @brief SPI error treatment function
