@@ -116,6 +116,7 @@ int main(void)
   //MX_DMA_Init();
   MX_SPI1_Init();
 
+	
   /* USER CODE BEGIN 2 */	
 	//Initialize SPI control
 	spiControl.initialize( &hspi1, MX_SPI1_Init );	
@@ -125,6 +126,21 @@ int main(void)
 	ledMatrix.clear();
 	//Inititalize EEPROM control
 	eeprom.initialize( &spiControl, GPIOA, EEPROM_CS_Pin );
+	
+	uint8_t r, c;
+	r = 0xff;
+	c = 0;
+	while( r > 0  ){
+		ledMatrix.write( r, ~c );
+		HAL_Delay(125);
+		r= r << 1;
+	}
+	r = 0xff;
+	while( r > 0  ){
+		ledMatrix.write( ~r, ~c );
+		HAL_Delay(125);
+		r= r >> 1;
+	}
 	
 	HAL_Delay(2);	
 	
@@ -272,10 +288,13 @@ int main(void)
 		if( ypos > ylimit ){
 			//time to switch side
 			activeSide++;
+			if( activeSide == TOP ){
+				ylimit--;
+			}
 			if( activeSide > 3 ){
 				activeSide = 0;
 				xpos++;
-				ylimit--;
+				//ylimit--;
 				if( xpos > ylimit ){
 					xpos = 1;
 				}
