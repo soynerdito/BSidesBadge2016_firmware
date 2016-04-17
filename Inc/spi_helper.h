@@ -17,17 +17,17 @@ void SPIx_Error(SPI_HandleTypeDef *hspi );
 /*
  * Function pointers for structure
 */
-typedef uint16_t (*type_spi_write_read)( uint8_t byte );
-typedef void (*type_spi_write)( uint16_t value);
-typedef uint32_t (*type_spi_read)(uint8_t readSize);
+typedef uint8_t (*type_spi_write_read)( uint8_t byte );
+typedef void (*type_spi_write)( uint8_t value);
+typedef uint8_t (*type_spi_read)(uint8_t readSize);
 typedef void (*type_spi_initialize)( SPI_HandleTypeDef *hspi, onSPIError funcSPIErrorCallback );
 
 /*
  *	Actual functions that read/write to the SPI
 */
-uint16_t _spi_write_read( uint8_t byte );
-void _spi_write( uint16_t value);
-uint32_t _spi_read(uint8_t readSize);
+uint8_t _spi_write_read( uint8_t byte );
+void _spi_write( uint8_t value);
+uint8_t _spi_read(uint8_t readSize);
 void _spi_initialize( SPI_HandleTypeDef *hspi, onSPIError funcSPIErrorCallback );
 
 /*

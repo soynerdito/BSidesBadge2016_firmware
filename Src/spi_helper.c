@@ -24,10 +24,10 @@ struct _spiControl spiControl = { 0, _spi_initialize, _spi_write_read ,_spi_writ
   * @param  Byte : Byte send.
   * @retval The received byte value
   */ 
-uint16_t _spi_write_read( uint8_t byte )
+uint8_t _spi_write_read( uint8_t byte )
 {	
  
-	uint16_t receivedbyte = 0x00;
+	uint8_t receivedbyte = 0x00;
   /* Send a Byte through the SPI peripheral */
   /* Read byte from the SPI bus */
   if(HAL_SPI_TransmitReceive( spiControl.SPI_Handle, (uint8_t*) &byte, (uint8_t*) &receivedbyte, 1, SpixTimeout) != HAL_OK)
@@ -43,7 +43,7 @@ uint16_t _spi_write_read( uint8_t byte )
   * @param Value: value to be written
   * @retval None
   */
-void _spi_write( uint16_t value){	
+void _spi_write( uint8_t value){	
   HAL_StatusTypeDef status = HAL_OK;
 
   status = HAL_SPI_Transmit( spiControl.SPI_Handle, (uint8_t*) &value, 1, SpixTimeout);
@@ -62,7 +62,7 @@ void _spi_write( uint16_t value){
   * @param  ReadSize Number of bytes to read (max 4 bytes)
   * @retval Value read on the SPI
   */
-uint32_t _spi_read(uint8_t readSize){
+uint8_t _spi_read(uint8_t readSize){
 
   HAL_StatusTypeDef status = HAL_OK;
   uint32_t readvalue;

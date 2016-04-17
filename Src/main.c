@@ -141,14 +141,16 @@ int main(void)
 		HAL_Delay(125);
 		r= r >> 1;
 	}
+	//Make ledMatrix CS down
+	ledMatrix.disable();
 	
 	HAL_Delay(2);	
 	
-	uint16_t address = 0x01;
+	uint8_t address = 0x01;
 	
 	value = eeprom.readData(address);	
-	
 	eeprom.enableWrite();
+	value = eeprom.readData(address);	
 	
 	data = 0xFF25;
 	eeprom.write( address, data );	
@@ -161,9 +163,9 @@ int main(void)
 
 	value = eeprom.readData(address);
 	//Try to read it again	
-	address = 0x02;
+	//address = 0x02;
 	value = eeprom.readData(address);	
-	address = 0x01;
+	//address = 0x01;
 	value = eeprom.readData(address);	
 	//Enable write function
 	eeprom.enableWrite();

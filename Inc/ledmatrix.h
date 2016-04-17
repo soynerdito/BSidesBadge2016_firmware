@@ -11,12 +11,13 @@
 /*
  * Function pointers for structure
 */
-typedef uint16_t (*type_spi_write_read)( uint8_t byte );
+typedef uint8_t (*type_spi_write_read)( uint8_t byte );
 typedef void (*type_clear)( void );
 typedef void (*type_write)(uint16_t Row, uint16_t Column );
-typedef uint32_t (*type_spi_read)(uint8_t readSize);
+typedef uint8_t (*type_spi_read)(uint8_t readSize);
 typedef void (*type_initialize)( struct _spiControl* SPI_Control, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin );
-typedef void (*type_clear)( void );
+//typedef void (*type_clear)( void );
+
 
 /*
  *	Actual functions that read/write to the SPI
@@ -24,6 +25,7 @@ typedef void (*type_clear)( void );
 void _latch( void );
 void _write(uint16_t Row, uint16_t Column );
 void _clear( void);
+void _disable( void);
 void _initialize(struct _spiControl* SPI_Control, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin );
 
 /*
@@ -34,6 +36,7 @@ struct _ledMatrix {
 	type_initialize initialize;
 	type_write write;	
 	type_clear clear;	
+	type_clear disable;	
 }  ;
 
 extern struct _ledMatrix ledMatrix;

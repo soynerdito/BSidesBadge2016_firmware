@@ -3,7 +3,7 @@
 
 
 //Actual structure that handles SPI communication
-struct _ledMatrix ledMatrix = { 0, _initialize, _write, _clear };
+struct _ledMatrix ledMatrix = { 0, _initialize, _write, _clear, _disable };
 
 /*
 	Hardware connection information
@@ -26,6 +26,11 @@ void _write(uint16_t Row, uint16_t Column )
 	resetCS();
 	//selectCS();
 	//deselectCS();
+}
+
+void _disable( void)
+{
+		resetCS();
 }
 
 void _clear( void)

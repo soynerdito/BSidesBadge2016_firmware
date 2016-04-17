@@ -10,8 +10,8 @@
 /*
  * Function pointers for structure
 */
-typedef void (*type_eeprom_write)( uint16_t address, uint16_t data );
-typedef uint16_t (*type_eeprom_readData)( uint16_t address );
+typedef void (*type_eeprom_write)( uint8_t address, uint16_t data );
+typedef uint16_t (*type_eeprom_readData)( uint8_t address );
 typedef void (*type_eeprom_disableProgramming)( void  );
 typedef void (*type_eeprom_enableWrite)(void);
 typedef void (*type_eeprom_erase)(uint8_t address );
@@ -19,8 +19,8 @@ typedef void (*type_eeprom_eraseAllChip)( void );
 typedef void (*type_eeprom_initialize)(struct _spiControl* SPI_Control, GPIO_TypeDef * GPIOx, uint16_t GPIO_Pin );
 typedef void (*type_eeprom_disable)(void);
 
-void eeprom_write( uint16_t address, uint16_t data );
-uint16_t eeprom_readData( uint16_t address );
+void eeprom_write( uint8_t address, uint16_t data );
+uint16_t eeprom_readData( uint8_t address );
 void eeprom_disableProgramming( void  );
 void eeprom_enableWrite(void);
 void eeprom_erase(uint8_t address );
