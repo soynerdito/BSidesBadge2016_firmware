@@ -145,7 +145,7 @@ int main(void)
 	ledMatrix.disable();
 	
 	HAL_Delay(2);	
-	
+	// EEPROM TESTING GOUNDS
 	uint8_t address = 0x01;
 	
 	value = eeprom.readData(address);	
@@ -154,18 +154,13 @@ int main(void)
 	
 	data = 0xFF25;
 	eeprom.write( address, data );	
-	//disableProgramming();
-	//disableEEPROM();
 	//Try to read that
-	HAL_Delay(1);	
-	//enableEEPROM();
+	HAL_Delay(1);	//why delay, just testing
 	value = 3;
 
 	value = eeprom.readData(address);
-	//Try to read it again	
-	//address = 0x02;
-	value = eeprom.readData(address);	
-	//address = 0x01;
+	//Try to read it again		
+	value = eeprom.readData(address);		
 	value = eeprom.readData(address);	
 	//Enable write function
 	eeprom.enableWrite();

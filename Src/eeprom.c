@@ -56,6 +56,14 @@ void eeprom_write( uint8_t address, uint16_t data )
 	EEPROM_CS_RESET_SET();
 }
 
+/*
+	Horrible code, yes I know.
+	Long time trying to make this work, and like this ran.
+	Beautify is a job for another day.
+	My refactor tries haven't work so...
+	Note to self: leave it and keep work on other stuff
+	Eventually I will get back to this (God knows when)
+*/
 uint16_t _fieldValue;
 uint8_t _fieldValue1;
 uint8_t buffer2;
@@ -101,6 +109,7 @@ void eeprom_enableWrite(void)
 	EEPROM_CS_RESET_SET();
 }
 
+//Not tested
 void eeprom_erase(uint8_t address )
 {
 	EEPROM_CS_SET();
@@ -114,6 +123,7 @@ void eeprom_disable()
 	EEPROM_CS_RESET();
 }
 
+//Not tested
 void eeprom_eraseAllChip( void )
 {
 	EEPROM_CS_SET();
