@@ -77,12 +77,12 @@ uint16_t eeprom_readData( uint8_t address )
 	
 	m_EEPROM_SPI_Control->write(READ);
 	m_EEPROM_SPI_Control->write(address);	
-	_fieldValue1 =  spiControl.writeRead(address);
+	_fieldValue1 =  m_EEPROM_SPI_Control->writeRead(address);
 	_fieldValue = _fieldValue1 & 0x00FF;
 	_fieldValue = _fieldValue << 8;	
-	buffer2 = spiControl.read( 1 );	
+	buffer2 = m_EEPROM_SPI_Control->read( 1 );	
 	_fieldValue = _fieldValue | buffer2;
-	buffer2 = spiControl.read( 1 );
+	buffer2 = m_EEPROM_SPI_Control->read( 1 );
 	_fieldValue = _fieldValue << 1;
 	_fieldValue = _fieldValue | ( buffer2 >> 7 );
 	EEPROM_CS_RESET_SET();
