@@ -12,4 +12,5 @@ just change it to this:
 
 
 '#' use hardware reset, connect under reset
+
 reset_config srst_only srst_nogate
