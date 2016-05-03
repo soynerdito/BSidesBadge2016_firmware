@@ -9,5 +9,7 @@ This is not a coding modification, just in my case from linux downloading code v
 
 In my case, to make SystemWorkbench work in my installation I had to change the .cfg file to adjust the reset option
 just change it to this:
-# use hardware reset, connect under reset
+
+
+'#' use hardware reset, connect under reset
 reset_config srst_only srst_nogate
