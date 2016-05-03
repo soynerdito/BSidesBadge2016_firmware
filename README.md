@@ -11,6 +11,6 @@ In my case, to make SystemWorkbench work in my installation I had to change the 
 just change it to this:
 
 
-'#' use hardware reset, connect under reset
+ # use hardware reset, connect under reset
 
 reset_config srst_only srst_nogate
